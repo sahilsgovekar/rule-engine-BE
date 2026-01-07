@@ -1,8 +1,6 @@
 package com.lps.ruleengine.controller;
 
 import com.lps.ruleengine.dto.CreatePolicyRequest;
-import com.lps.ruleengine.dto.EvaluationRequest;
-import com.lps.ruleengine.dto.EvaluationResponse;
 import com.lps.ruleengine.model.Policy;
 import com.lps.ruleengine.service.PolicyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -116,19 +114,4 @@ public class PolicyController {
         }
     }
 
-    @Operation(summary = "Evaluate a policy", description = "Evaluates a policy against user attributes")
-    @PostMapping("/{policyId}/evaluate")
-    public ResponseEntity<EvaluationResponse> evaluatePolicy(
-            @Parameter(description = "Policy ID") @PathVariable String policyId,
-            @Valid @RequestBody EvaluationRequest request) {
-        log.info("Evaluating policy: {} for user: {}", policyId, request.getUserId());
-        try {
-            EvaluationResponse response = policyService.evaluatePolicy(
-                    policyId, request.getUserId(), request.getUserAttributes());
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error evaluating policy: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
-    }
 }

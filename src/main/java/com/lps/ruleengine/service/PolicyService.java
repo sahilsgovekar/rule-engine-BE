@@ -1,7 +1,6 @@
 package com.lps.ruleengine.service;
 
 import com.lps.ruleengine.dto.CreatePolicyRequest;
-import com.lps.ruleengine.dto.EvaluationResponse;
 import com.lps.ruleengine.model.Policy;
 import com.lps.ruleengine.repository.PolicyRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -18,7 +16,6 @@ import java.util.Optional;
 public class PolicyService {
 
     private final PolicyRepository policyRepository;
-    private final RuleEvaluationService ruleEvaluationService;
 
     public Policy createPolicy(CreatePolicyRequest request) {
         log.debug("Creating policy: {}", request.getPolicyId());
@@ -43,28 +40,6 @@ public class PolicyService {
         return policyRepository.save(policy);
     }
 
-    public EvaluationResponse evaluatePolicy(String policyId, String userId, Map<String, Object> userAttributes) {
-        log.debug("Evaluating policy: {}, userId: {}", policyId, userId);
-        
-        Optional<Policy> policyOpt = policyRepository.findByPolicyId(policyId);
-        if (policyOpt.isEmpty()) {
-            throw new RuntimeException("Policy not found: " + policyId);
-        }
-        
-        Policy policy = policyOpt.get();
-        if (!policy.getIsActive()) {
-            throw new RuntimeException("Policy is inactive: " + policyId);
-        }
-        
-        // Evaluate starting from the root rule
-        EvaluationResponse response = ruleEvaluationService.evaluateRule(policy.getRootRuleId(), userId, userAttributes);
-        
-        // Update response to indicate it was a policy evaluation
-        response.setEvaluatedId(policyId);
-        response.setEvaluationType("POLICY");
-        
-        return response;
-    }
 
     public List<Policy> getAllPolicies() {
         return policyRepository.findAll();

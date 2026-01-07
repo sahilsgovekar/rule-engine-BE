@@ -2,8 +2,10 @@ com/lps/ruleengine/RuleEngineApplication.class
 com/lps/ruleengine/model/Policy$PolicyBuilder.class
 com/lps/ruleengine/dto/CreateDocumentRequest.class
 com/lps/ruleengine/config/OpenApiConfig.class
+com/lps/ruleengine/controller/PolicyEvaluationController.class
 com/lps/ruleengine/dto/CreatePolicyRequest.class
 com/lps/ruleengine/dto/CreatePolicyRequest$CreatePolicyRequestBuilder.class
+com/lps/ruleengine/service/PolicyEvaluationService.class
 com/lps/ruleengine/model/Rule$RuleBuilder.class
 com/lps/ruleengine/model/Document$1.class
 com/lps/ruleengine/repository/PolicyRepository.class

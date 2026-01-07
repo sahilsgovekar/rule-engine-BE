@@ -52,11 +52,12 @@ cd rule-engine
 
 ### Step 4: Build the Project
 ```bash
-mvn clean compile
+mvn clean install
 ```
 This will:
 - Download all required dependencies (~150MB)
-- Compile the Java source code
+- Compile all modules in the correct order
+- Install modules to local Maven repository
 - Validate the project structure
 
 ### Step 5: Run Tests (Optional but Recommended)
@@ -66,9 +67,26 @@ mvn test
 This ensures everything is working correctly before starting the application.
 
 ### Step 6: Start the Application
+
+**Option 1 (Recommended): Run from controller module**
 ```bash
+cd ruleengine-controller
 mvn spring-boot:run
 ```
+
+**Option 2: Run from root directory**
+```bash
+mvn spring-boot:run -pl ruleengine-controller
+```
+
+**Option 3: Build and run JAR**
+```bash
+mvn clean package -DskipTests
+cd ruleengine-controller
+java -jar target/ruleengine-controller-1.0.0.jar
+```
+
+**Important Note:** Always build from the root directory first using `mvn clean install` before running the application. This ensures all internal module dependencies are available in your local Maven repository.
 
 ## Application Startup
 
@@ -105,13 +123,13 @@ Once the application starts successfully, you can access:
 
 ### 🌐 Web Interfaces
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **API Documentation**: http://localhost:8080/api-docs
+- **API Documentation**: http://localhost:8080/v3/api-docs
 - **H2 Database Console**: http://localhost:8080/h2-console
 
 ### 🔧 H2 Database Console Access
 1. Open: http://localhost:8080/h2-console
 2. Use these settings:
-   - **JDBC URL**: `jdbc:h2:mem:testdb`
+   - **JDBC URL**: `jdbc:h2:mem:ruleenginedb`
    - **User Name**: `sa`
    - **Password**: `password`
 3. Click "Connect"
@@ -131,7 +149,7 @@ curl -X GET "http://localhost:8080/api/rules"
 
 ### Test 2: Evaluate a Policy
 ```bash
-curl -X POST "http://localhost:8080/api/policies/policy_standard_loan/evaluate" \
+curl -X POST "http://localhost:8080/api/evaluation/policies/policy_standard_loan" \
 -H "Content-Type: application/json" \
 -d '{
   "userId": "test_user",
@@ -227,7 +245,8 @@ For development, you can enable automatic restart on code changes:
 ### Building JAR for Production
 ```bash
 mvn clean package -DskipTests
-java -jar target/rule-engine-1.0.0.jar
+cd ruleengine-controller
+java -jar target/ruleengine-controller-1.0.0.jar
 ```
 
 ### Environment-Specific Configuration

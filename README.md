@@ -188,7 +188,19 @@ erDiagram
 
 ---
 
+## User Interface
+
+The Rule Engine includes a modern, intuitive web interface for managing rules, policies, and evaluations without requiring technical knowledge.
+
+![Rule Engine Dashboard](ui/1.png)
+
 ## Documentation
+
+### 🎨 **For End Users & UI Teams**
+
+| Document | Description |
+|----------|-------------|
+| **[UI Usage Guide](uiUsage.md)** | Complete user interface walkthrough with screenshots of all major features. Covers dashboard overview, rule management, policy creation, document handling, and evaluation workflows. Includes frontend repository link and setup instructions. |
 
 ### 📚 **For Developers & Architects**
 

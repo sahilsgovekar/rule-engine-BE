@@ -1,5 +1,6 @@
 package com.lps.ruleengine.service.impl;
 
+import com.lps.ruleengine.adaptor.EvaluationResponseAdaptor;
 import com.lps.ruleengine.dto.EvaluationResponse;
 import com.lps.ruleengine.model.Document;
 import com.lps.ruleengine.model.Rule;
@@ -21,6 +22,7 @@ public class RuleEvaluationService implements IRuleEvaluationService {
 
     private final RuleRepository ruleRepository;
     private final DocumentRepository documentRepository;
+    private final EvaluationResponseAdaptor evaluationResponseAdaptor;
 
     @Override
     public EvaluationResponse evaluateRule(String ruleId, String userId, Map<String, Object> userAttributes) {
@@ -31,26 +33,11 @@ public class RuleEvaluationService implements IRuleEvaluationService {
         try {
             boolean result = evaluateRuleRecursively(ruleId, userAttributes, executionTrace, new HashSet<>());
             
-            return EvaluationResponse.builder()
-                    .result(result)
-                    .userId(userId)
-                    .evaluatedId(ruleId)
-                    .evaluationType("RULE")
-                    .executionTrace(executionTrace)
-                    .evaluatedAt(LocalDateTime.now())
-                    .build();
+            return evaluationResponseAdaptor.createSuccessResponse(result, userId, ruleId, "RULE", executionTrace);
                     
         } catch (Exception e) {
             log.error("Error evaluating rule: {}", e.getMessage(), e);
-            return EvaluationResponse.builder()
-                    .result(false)
-                    .userId(userId)
-                    .evaluatedId(ruleId)
-                    .evaluationType("RULE")
-                    .executionTrace(executionTrace)
-                    .evaluatedAt(LocalDateTime.now())
-                    .errorMessage(e.getMessage())
-                    .build();
+            return evaluationResponseAdaptor.createErrorResponse(userId, ruleId, "RULE", executionTrace, e.getMessage());
         }
     }
 
@@ -77,12 +64,8 @@ public class RuleEvaluationService implements IRuleEvaluationService {
         boolean expressionResult = evaluateExpression(rule.getExpression(), rule.getReferenceId(), userAttributes);
         
         // Add to execution trace
-        trace.add(EvaluationResponse.ExecutionTrace.builder()
-                .ruleId(ruleId)
-                .expression(rule.getExpression())
-                .evaluationResult(expressionResult)
-                .nextAction(expressionResult ? "onTrue: " + rule.getOnTrueValue() : "onFalse: " + rule.getOnFalseValue())
-                .build());
+        String nextAction = expressionResult ? "onTrue: " + rule.getOnTrueValue() : "onFalse: " + rule.getOnFalseValue();
+        trace.add(evaluationResponseAdaptor.createExecutionTrace(ruleId, rule.getExpression(), expressionResult, nextAction));
         
         // Determine next step based on result
         if (expressionResult) {

@@ -1,5 +1,8 @@
 package com.lps.ruleengine.config;
 
+import com.lps.ruleengine.adaptor.DocumentAdaptor;
+import com.lps.ruleengine.adaptor.PolicyAdaptor;
+import com.lps.ruleengine.adaptor.RuleAdaptor;
 import com.lps.ruleengine.model.Document;
 import com.lps.ruleengine.model.Policy;
 import com.lps.ruleengine.model.Rule;
@@ -23,6 +26,9 @@ public class DataInitializer implements CommandLineRunner {
     private final DocumentRepository documentRepository;
     private final RuleRepository ruleRepository;
     private final PolicyRepository policyRepository;
+    private final DocumentAdaptor documentAdaptor;
+    private final RuleAdaptor ruleAdaptor;
+    private final PolicyAdaptor policyAdaptor;
 
     @Override
     public void run(String... args) throws Exception {
@@ -37,13 +43,13 @@ public class DataInitializer implements CommandLineRunner {
 
     private void initializeDocuments() {
         List<Document> documents = Arrays.asList(
-            Document.of("doc_min_age", 18),
-            Document.of("doc_max_age", 65),
-            Document.of("doc_min_income", 25000),
-            Document.of("doc_allowed_cities", Arrays.asList("Bangalore", "Mumbai", "Delhi", "Chennai")),
-            Document.of("doc_high_risk_amount", 500000),
-            Document.of("doc_true", true),
-            Document.of("doc_false", false)
+            documentAdaptor.createDocumentFromIdAndValue("doc_min_age", 18),
+            documentAdaptor.createDocumentFromIdAndValue("doc_max_age", 65),
+            documentAdaptor.createDocumentFromIdAndValue("doc_min_income", 25000),
+            documentAdaptor.createDocumentFromIdAndValue("doc_allowed_cities", Arrays.asList("Bangalore", "Mumbai", "Delhi", "Chennai")),
+            documentAdaptor.createDocumentFromIdAndValue("doc_high_risk_amount", 500000),
+            documentAdaptor.createDocumentFromIdAndValue("doc_true", true),
+            documentAdaptor.createDocumentFromIdAndValue("doc_false", false)
         );
 
         documentRepository.saveAll(documents);
@@ -53,76 +59,38 @@ public class DataInitializer implements CommandLineRunner {
     private void initializeRules() {
         List<Rule> rules = Arrays.asList(
             // Age check rule
-            Rule.builder()
-                .ruleId("rule_age_check")
-                .expression("age >= 18")
-                .referenceId("doc_min_age")
-                .onTrueType(Rule.OutcomeType.RULE)
-                .onTrueValue("rule_city_check")
-                .onFalseType(Rule.OutcomeType.VALUE)
-                .onFalseValue("false")
-                .description("Check if user is at least 18 years old")
-                .build(),
+            ruleAdaptor.createRule("rule_age_check", "age >= 18", "doc_min_age",
+                    Rule.OutcomeType.RULE, "rule_city_check",
+                    Rule.OutcomeType.VALUE, "false",
+                    "Check if user is at least 18 years old", true),
 
             // City check rule
-            Rule.builder()
-                .ruleId("rule_city_check")
-                .expression("city IN allowedCities")
-                .referenceId("doc_allowed_cities")
-                .onTrueType(Rule.OutcomeType.RULE)
-                .onTrueValue("rule_income_check")
-                .onFalseType(Rule.OutcomeType.VALUE)
-                .onFalseValue("false")
-                .description("Check if user is from allowed cities")
-                .build(),
+            ruleAdaptor.createRule("rule_city_check", "city IN allowedCities", "doc_allowed_cities",
+                    Rule.OutcomeType.RULE, "rule_income_check",
+                    Rule.OutcomeType.VALUE, "false",
+                    "Check if user is from allowed cities", true),
 
             // Income check rule
-            Rule.builder()
-                .ruleId("rule_income_check")
-                .expression("income >= 25000")
-                .referenceId("doc_min_income")
-                .onTrueType(Rule.OutcomeType.RULE)
-                .onTrueValue("rule_amount_check")
-                .onFalseType(Rule.OutcomeType.VALUE)
-                .onFalseValue("false")
-                .description("Check if user has minimum required income")
-                .build(),
+            ruleAdaptor.createRule("rule_income_check", "income >= 25000", "doc_min_income",
+                    Rule.OutcomeType.RULE, "rule_amount_check",
+                    Rule.OutcomeType.VALUE, "false",
+                    "Check if user has minimum required income", true),
 
             // Amount check rule
-            Rule.builder()
-                .ruleId("rule_amount_check")
-                .expression("loanAmount < 500000")
-                .referenceId("doc_high_risk_amount")
-                .onTrueType(Rule.OutcomeType.VALUE)
-                .onTrueValue("true")
-                .onFalseType(Rule.OutcomeType.RULE)
-                .onFalseValue("rule_high_amount_check")
-                .description("Check loan amount threshold")
-                .build(),
+            ruleAdaptor.createRule("rule_amount_check", "loanAmount < 500000", "doc_high_risk_amount",
+                    Rule.OutcomeType.VALUE, "true",
+                    Rule.OutcomeType.RULE, "rule_high_amount_check",
+                    "Check loan amount threshold", true),
 
             // High amount additional check
-            Rule.builder()
-                .ruleId("rule_high_amount_check")
-                .expression("age <= 65")
-                .referenceId("doc_max_age")
-                .onTrueType(Rule.OutcomeType.VALUE)
-                .onTrueValue("true")
-                .onFalseType(Rule.OutcomeType.VALUE)
-                .onFalseValue("false")
-                .description("Additional check for high amount loans")
-                .build(),
+            ruleAdaptor.createRule("rule_high_amount_check", "age <= 65", "doc_max_age",
+                    Rule.OutcomeType.VALUE, "true",
+                    Rule.OutcomeType.VALUE, "false",
+                    "Additional check for high amount loans", true),
 
             // Simple approve rule
-            Rule.builder()
-                .ruleId("rule_simple_approve")
-                .expression("age >= 18")
-                .referenceId("doc_min_age")
-                .onTrueType(Rule.OutcomeType.VALUE)
-                .onTrueValue("true")
-                .onFalseType(Rule.OutcomeType.VALUE)
-                .onFalseValue("false")
-                .description("Simple age-based approval rule")
-                .build()
+            ruleAdaptor.createSimpleRule("rule_simple_approve", "age >= 18", 
+                    "Simple age-based approval rule", "true", "false")
         );
 
         ruleRepository.saveAll(rules);
@@ -131,25 +99,15 @@ public class DataInitializer implements CommandLineRunner {
 
     private void initializePolicies() {
         List<Policy> policies = Arrays.asList(
-            Policy.builder()
-                .policyId("policy_standard_loan")
-                .policyName("Standard Loan Approval Policy")
-                .description("Standard policy for regular loan applications")
-                .rootRuleId("rule_age_check")
-                .ruleIds(new HashSet<>(Arrays.asList("rule_age_check", "rule_city_check", 
-                                                   "rule_income_check", "rule_amount_check", 
-                                                   "rule_high_amount_check")))
-                .priority(1)
-                .build(),
+            policyAdaptor.createPolicy("policy_standard_loan", "Standard Loan Approval Policy",
+                    "Standard policy for regular loan applications", "rule_age_check",
+                    Arrays.asList("rule_age_check", "rule_city_check", "rule_income_check", 
+                                 "rule_amount_check", "rule_high_amount_check"), 
+                    1, true),
 
-            Policy.builder()
-                .policyId("policy_simple_loan")
-                .policyName("Simple Loan Approval Policy")
-                .description("Simplified policy with only age check")
-                .rootRuleId("rule_simple_approve")
-                .ruleIds(new HashSet<>(Arrays.asList("rule_simple_approve")))
-                .priority(2)
-                .build()
+            policyAdaptor.createPolicy("policy_simple_loan", "Simple Loan Approval Policy",
+                    "Simplified policy with only age check", "rule_simple_approve",
+                    Arrays.asList("rule_simple_approve"), 2, true)
         );
 
         policyRepository.saveAll(policies);

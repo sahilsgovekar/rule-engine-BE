@@ -1,5 +1,6 @@
 package com.lps.ruleengine.service.impl;
 
+import com.lps.ruleengine.adaptor.RuleAdaptor;
 import com.lps.ruleengine.dto.CreateRuleRequest;
 import com.lps.ruleengine.model.Rule;
 import com.lps.ruleengine.repository.RuleRepository;
@@ -17,6 +18,7 @@ import java.util.Optional;
 public class RuleService implements IRuleService {
 
     private final RuleRepository ruleRepository;
+    private final RuleAdaptor ruleAdaptor;
 
     @Override
     public Rule createRule(CreateRuleRequest request) {
@@ -26,16 +28,7 @@ public class RuleService implements IRuleService {
             throw new RuntimeException("Rule already exists: " + request.getRuleId());
         }
         
-        Rule rule = Rule.builder()
-                .ruleId(request.getRuleId())
-                .expression(request.getExpression())
-                .referenceId(request.getReferenceId())
-                .onTrueType(request.getOnTrueType())
-                .onTrueValue(request.getOnTrueValue())
-                .onFalseType(request.getOnFalseType())
-                .onFalseValue(request.getOnFalseValue())
-                .description(request.getDescription())
-                .build();
+        Rule rule = ruleAdaptor.createRuleFromRequest(request);
         
         return ruleRepository.save(rule);
     }

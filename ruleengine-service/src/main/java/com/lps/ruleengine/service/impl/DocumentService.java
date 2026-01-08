@@ -1,5 +1,6 @@
 package com.lps.ruleengine.service.impl;
 
+import com.lps.ruleengine.adaptor.DocumentAdaptor;
 import com.lps.ruleengine.dto.CreateDocumentRequest;
 import com.lps.ruleengine.model.Document;
 import com.lps.ruleengine.repository.DocumentRepository;
@@ -17,6 +18,7 @@ import java.util.Optional;
 public class DocumentService implements IDocumentService {
 
     private final DocumentRepository documentRepository;
+    private final DocumentAdaptor documentAdaptor;
 
     @Override
     public Document createDocument(CreateDocumentRequest request) {
@@ -26,11 +28,7 @@ public class DocumentService implements IDocumentService {
             throw new RuntimeException("Document already exists: " + request.getDocumentId());
         }
         
-        Document document = Document.builder()
-                .documentId(request.getDocumentId())
-                .documentValue(request.getDocumentValue())
-                .valueType(request.getValueType())
-                .build();
+        Document document = documentAdaptor.createDocumentFromRequest(request);
         
         return documentRepository.save(document);
     }
@@ -84,13 +82,13 @@ public class DocumentService implements IDocumentService {
         
         if (existingOpt.isPresent()) {
             Document existing = existingOpt.get();
-            Document updated = Document.of(documentId, value);
+            Document updated = documentAdaptor.createDocumentFromIdAndValue(documentId, value);
             existing.setDocumentValue(updated.getDocumentValue());
             existing.setValueType(updated.getValueType());
             existing.setVersion(existing.getVersion() + 1);
             return documentRepository.save(existing);
         } else {
-            return documentRepository.save(Document.of(documentId, value));
+            return documentRepository.save(documentAdaptor.createDocumentFromIdAndValue(documentId, value));
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.lps.ruleengine.service.impl;
 
+import com.lps.ruleengine.adaptor.PolicyAdaptor;
 import com.lps.ruleengine.dto.CreatePolicyRequest;
 import com.lps.ruleengine.model.Policy;
 import com.lps.ruleengine.repository.PolicyRepository;
@@ -17,6 +18,7 @@ import java.util.Optional;
 public class PolicyService implements IPolicyService {
 
     private final PolicyRepository policyRepository;
+    private final PolicyAdaptor policyAdaptor;
 
     @Override
     public Policy createPolicy(CreatePolicyRequest request) {
@@ -30,14 +32,7 @@ public class PolicyService implements IPolicyService {
             throw new RuntimeException("Policy name already exists: " + request.getPolicyName());
         }
         
-        Policy policy = Policy.builder()
-                .policyId(request.getPolicyId())
-                .policyName(request.getPolicyName())
-                .description(request.getDescription())
-                .rootRuleId(request.getRootRuleId())
-                .ruleIds(request.getRuleIds())
-                .priority(request.getPriority() != null ? request.getPriority() : 1)
-                .build();
+        Policy policy = policyAdaptor.createPolicyFromRequest(request);
         
         return policyRepository.save(policy);
     }

@@ -2,7 +2,7 @@ package com.lps.ruleengine.controller;
 
 import com.lps.ruleengine.dto.CreateDocumentRequest;
 import com.lps.ruleengine.model.Document;
-import com.lps.ruleengine.service.DocumentService;
+import com.lps.ruleengine.service.IDocumentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,7 +23,7 @@ import java.util.Optional;
 @Tag(name = "Document Management", description = "APIs for managing documents (reference values)")
 public class DocumentController {
 
-    private final DocumentService documentService;
+    private final IDocumentService documentService;
 
     @Operation(summary = "Create a new document", description = "Creates a new document with the specified value")
     @PostMapping

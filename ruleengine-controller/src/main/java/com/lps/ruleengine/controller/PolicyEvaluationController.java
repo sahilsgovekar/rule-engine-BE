@@ -2,7 +2,7 @@ package com.lps.ruleengine.controller;
 
 import com.lps.ruleengine.dto.EvaluationRequest;
 import com.lps.ruleengine.dto.EvaluationResponse;
-import com.lps.ruleengine.service.PolicyEvaluationService;
+import com.lps.ruleengine.service.IPolicyEvaluationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +21,7 @@ import java.util.Map;
 @Tag(name = "Policy & Rule Evaluation", description = "APIs for evaluating policies and rules against user data")
 public class PolicyEvaluationController {
 
-    private final PolicyEvaluationService policyEvaluationService;
+    private final IPolicyEvaluationService policyEvaluationService;
 
     @Operation(
         summary = "Evaluate a policy", 

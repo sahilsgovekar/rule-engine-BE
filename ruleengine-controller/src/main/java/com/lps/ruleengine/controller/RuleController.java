@@ -4,8 +4,8 @@ import com.lps.ruleengine.dto.CreateRuleRequest;
 import com.lps.ruleengine.dto.EvaluationRequest;
 import com.lps.ruleengine.dto.EvaluationResponse;
 import com.lps.ruleengine.model.Rule;
-import com.lps.ruleengine.service.RuleEvaluationService;
-import com.lps.ruleengine.service.RuleService;
+import com.lps.ruleengine.service.IRuleEvaluationService;
+import com.lps.ruleengine.service.IRuleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,8 +26,8 @@ import java.util.Optional;
 @Tag(name = "Rule Management", description = "APIs for managing and evaluating rules")
 public class RuleController {
 
-    private final RuleService ruleService;
-    private final RuleEvaluationService ruleEvaluationService;
+    private final IRuleService ruleService;
+    private final IRuleEvaluationService ruleEvaluationService;
 
     @Operation(summary = "Create a new rule", description = "Creates a new rule with the specified parameters")
     @PostMapping

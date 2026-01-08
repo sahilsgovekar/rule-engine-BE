@@ -2,7 +2,7 @@ package com.lps.ruleengine.controller;
 
 import com.lps.ruleengine.dto.CreatePolicyRequest;
 import com.lps.ruleengine.model.Policy;
-import com.lps.ruleengine.service.PolicyService;
+import com.lps.ruleengine.service.IPolicyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,7 +23,7 @@ import java.util.Optional;
 @Tag(name = "Policy Management", description = "APIs for managing and evaluating policies")
 public class PolicyController {
 
-    private final PolicyService policyService;
+    private final IPolicyService policyService;
 
     @Operation(summary = "Create a new policy", description = "Creates a new policy with the specified rules")
     @PostMapping
